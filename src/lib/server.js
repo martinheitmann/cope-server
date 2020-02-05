@@ -9,7 +9,7 @@ class Server {
     }
 
     initializeDatabaseConnection(){
-        mongoose.connect('mongodb://localhost:27017/cope-server', { useNewUrlParser: true });
+        mongoose.connect('mongodb://localhost:27017/cope-server', { useNewUrlParser: true , useUnifiedTopology: true});
         mongoose.connection.once('open', () => {
             console.log('Connected to database!');
         });

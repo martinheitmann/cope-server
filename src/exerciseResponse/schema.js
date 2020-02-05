@@ -5,18 +5,19 @@ const User = require("mongoose");
 const { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLList } = graphql;
 
 
-const ExerciseType = new GraphQLObjectType({
-    name: 'Exercise',
+const ExerciseResponseType = new GraphQLObjectType({
+    name: 'ExerciseResponse',
     fields: () => ({
         id: { type: GraphQLID },
-        position: { type: GraphQLInt },
-        module: { type: GraphQLInt },
+        exerciseName: { type: GraphQLString },
         identifier: { type: GraphQLString },
-        name: { type: GraphQLString },
         style: { type: GraphQLString },
         data: { type: GraphQLString },
-        isRepeatable: { type: GraphQLBoolean },
+        timestamp: { type: GraphQLString },
+        local_id: {type: GraphQLInt},
+        user: { type: GraphQLID },
+        exercise: { type: GraphQLID }
     })
 });
 
-module.exports = ExerciseType;
+module.exports = ExerciseResponseType;

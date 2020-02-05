@@ -1,69 +1,70 @@
-const _ = require('lodash');
-const graphql = require('graphql');
-const Exercise = require('./exercise/model');
+const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLInt, GraphQLBoolean, GraphQLList } = require('graphql');
+const UserType = require('./user/schema');
 const ExerciseType = require('./exercise/schema');
-const UserProfile = require('./userProfile/model');
-const exercises = require('./sample_data/exercises');
-const UserProfileType = require('./userProfile/schema');
-const userprofiles = require('./sample_data/userProfiles');
-const ExerciseResponse = require('./exerciseresponse/model');
-const ExerciseResponseType = require('./exerciseresponse/schema');
-const exerciseresponses = require('./sample_data/exerciseResponses');
-const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLID, GraphQLList, GraphQLInt } = graphql;
+const ExerciseResponseType = require('./exerciseResponse/schema');
+const User = require('./user/model');
+const Exercise = require('./exercise/model');
+const ExerciseResponse = require('./exerciseResponse/model');
+const ResolveExerciseResponse = require('./exerciseResponse/resolver');
+const ResolveExercise = require('./exercise/resolver');
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-        exercise: {
-            type: ExerciseType,
-            args: {id: {type: GraphQLID}},
+        user: {
+            type: UserType,
+            args: {id: { type: GraphQLString } },
             resolve(parent, args){
-                //return _.find(exercises, {id: args.id});
+                return User.findUserById(args.id);
             }
         },
-        exercises: {
-            type: new GraphQLList(ExerciseType),
+        exercise: {
+            type: ExerciseType,
+            args: {id: { type: GraphQLString } },
             resolve(parent, args){
-                //return exercises;
+                return Exercise.findExerciseById(args.id);
             }
         },
         exerciseResponse: {
             type: ExerciseResponseType,
-            args: {id: {type: GraphQLID}},
+            args: {
+                id: { type: GraphQLID },
+                user: {type: GraphQLID}
+            },
             resolve(parent, args){
-                //return _.find(exerciseresponses, {id: args.id});
+                console.log('resolver for root exerciseResponse called');
+                return ResolveExerciseResponse(args);
             }
         },
-        exerciseResponses: {
-            type: new GraphQLList(ExerciseResponseType),
+        exerciseResponseList: {
+            type: GraphQLList(ExerciseResponseType),
+            args: {
+                user: {type: GraphQLID},
+                id: {type: GraphQLID}
+            },
             resolve(parent, args){
-                //return exerciseresponses
+                console.log('resolver for root exerciseResponseList called');
+                return ResolveExerciseResponse(args);
             }
         },
-        userProfile: {
-            type: UserProfileType,
-            args: {id: {type: GraphQLID}},
+        exerciseList: {
+            type: GraphQLList(ExerciseType),
+            args: {identifier: {type: GraphQLString},},
             resolve(parent, args){
-                // return _.find(userprofiles, {id: args.id});
-                return UserProfile.findById(args.id);
-            }
-        },
-        userProfiles: {
-            type: UserProfileType,
-            resolve(parent, args){
-                // return userprofiles
+                console.log('resolver for root exerciseList called');
+                return ResolveExercise(args);
             }
         }
-
     }
 });
 
 const Mutation = new GraphQLObjectType({
-    name: 'Mutation',
+    name: 'MutationType',
     fields: {
-        addUserProfile: {
-            type: UserProfileType,
+        createUser: {
+            type: UserType,
             args: {
+                id: { type: GraphQLID},
                 firstName: { type: GraphQLString },
                 lastName: { type: GraphQLString },
                 gender: { type: GraphQLString },
@@ -73,51 +74,66 @@ const Mutation = new GraphQLObjectType({
                 address: { type: GraphQLString },
             },
             resolve(parent, args){
-                let userProfile = new UserProfile({
+                let user = new User({
                     firstName: args.firstName,
                     lastName: args.lastName,
                     gender: args.gender,
                     age: args.age,
                     email: args.email,
                     phone: args.phone,
-                    address: args.address
+                    address: args.address,
                 });
-                return userProfile.save();
+                return user.save();
             }
         },
-        addExercise: {
+        createExercise: {
             type: ExerciseType,
             args: {
-                name: { type: GraphQLString},
-                category: { type: GraphQLString },
-                topic: {type: GraphQLString},
+                id: { type: GraphQLID },
+                position: { type: GraphQLInt },
+                moduleId: { type: GraphQLInt },
+                identifier: { type: GraphQLString },
+                name: { type: GraphQLString },
+                style: { type: GraphQLString },
+                data: { type: GraphQLString },
+                isRepeatable: { type: GraphQLBoolean },
             },
-            resolve(parent, args){
+            resolve(parent, args) {
                 let exercise = new Exercise({
+                    position: args.position,
+                    module: args.module,
+                    identifier: args.identifier,
                     name: args.name,
-                    category: args.category,
-                    topic: args.topic
+                    style: args.style,
+                    data: args.data,
+                    isRepeatable: args.isRepeatable
                 });
                 return exercise.save();
             }
         },
-        addExerciseResponse: {
+        createExerciseResponse: {
             type: ExerciseResponseType,
             args: {
-                exerciseId: {type: GraphQLID},
-                exerciseName: { type: GraphQLString},
-                answers: { type: GraphQLString },
+                id: { type: GraphQLID },
+                exerciseName: { type: GraphQLString },
+                identifier: { type: GraphQLString },
+                style: { type: GraphQLString },
+                data: { type: GraphQLString },
+                timestamp: { type: GraphQLString }
             },
             resolve(parent, args){
-                let exerciseResponse = new ExerciseResponse({
-                    exerciseId: args.exerciseId,
+                let exerciseResponse = ExerciseResponse({
                     exerciseName: args.exerciseName,
-                    answers: args.answers,
+                    identifier: args.identifier,
+                    style: args.style,
+                    data: args.data,
+                    timestamp: args.timestamp,
                 });
                 return exerciseResponse.save();
             }
         }
     }
+
 });
 
 module.exports = new GraphQLSchema({

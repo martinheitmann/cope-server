@@ -1,11 +1,12 @@
 const _ = require('lodash');
 const graphql = require('graphql');
-const exerciseResponses = require('../sample_data/exerciseResponses');
-const ExerciseResponseType = require('../exerciseresponse/schema');
+const EXERCISE_RESPONSE_PATH = '../exerciseResponse';
+const ExerciseResponse = require( EXERCISE_RESPONSE_PATH + '/model');
+const ExerciseResponseType = require('../exerciseResponse/schema');
 const { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLID, GraphQLInt, GraphQLList } = graphql;
 
-const UserProfileType = new GraphQLObjectType({
-    name: 'UserProfile',
+const UserType = new GraphQLObjectType({
+    name: 'User',
     fields: () => ({
         id: { type: GraphQLID},
         firstName: { type: GraphQLString },
@@ -16,12 +17,12 @@ const UserProfileType = new GraphQLObjectType({
         phone: { type: GraphQLString },
         address: { type: GraphQLString },
         exerciseResponses: {
-            type: new GraphQLList(ExerciseResponseType),
+            type: ExerciseResponseType,
             resolve(parent, args){
-                return _.filter(exerciseResponses, {exerciseId: parent.id})
+                return ExerciseResponse.find({user: parent.id})
             }
         }
     })
 });
 
-module.exports = UserProfileType;
+module.exports = UserType;
