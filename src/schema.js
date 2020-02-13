@@ -54,7 +54,7 @@ const RootQuery = new GraphQLObjectType({
                 console.log('resolver for root exerciseList called');
                 return ResolveExercise(args);
             }
-        }
+        },
     }
 });
 
