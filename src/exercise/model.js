@@ -45,13 +45,14 @@ exerciseSchema.statics.findExerciseByIdentifier = function(identifier){
         try {
             console.log('exercise model: calling findExercisesByIdentifier');
             const exercise = await Exercise.findOne({identifier: identifier});
-            console.log('exercise with id ' + exercise._id + " and identifier "+ exercise.identifier + " found");
+            console.log('exercise with id ' + exercise.id + " and identifier "+ exercise.identifier + " found");
             resolve(exercise);
         } catch(err){
             reject(err);
         }
     });
 };
+
 
 const Exercise = mongoose.model('Exercise', exerciseSchema);
 module.exports = Exercise;

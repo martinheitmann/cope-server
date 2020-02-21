@@ -12,5 +12,5 @@ let server = new Server()
     .listen();
 
 //Init();
-Query();
+//Query();
 console.log('Running a GraphQL API server at localhost:4000/graphql');

@@ -7,6 +7,7 @@ const Exercise = require('./exercise/model');
 const ExerciseResponse = require('./exerciseResponse/model');
 const ResolveExerciseResponse = require('./exerciseResponse/resolver');
 const ResolveExercise = require('./exercise/resolver');
+const ResolveRecommendedExercise = require('./recommendedExercise/resolver');
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
@@ -16,6 +17,13 @@ const RootQuery = new GraphQLObjectType({
             args: {id: { type: GraphQLString } },
             resolve(parent, args){
                 return User.findUserById(args.id);
+            }
+        },
+        recommendedExercise: {
+            type: ExerciseType,
+            args: {id: { type: GraphQLString } },
+            resolve(parent, args){
+                return ResolveRecommendedExercise(args.id);
             }
         },
         exercise: {

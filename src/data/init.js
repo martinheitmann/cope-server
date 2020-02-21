@@ -6,7 +6,7 @@ const GenerateUsers = require('./users');
 async function Init() {
     //await GenerateExercises();
     //await GenerateUsers();
-    await GenerateExerciseResponses();
+    //await GenerateExerciseResponses();
 }
 
 module.exports = Init;
